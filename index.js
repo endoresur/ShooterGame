@@ -76,7 +76,7 @@ const enemies = [];
 
 function spawnEnemies() {
     setInterval(() => {
-        const radius = Math.random() * (30 - 4) + 4;
+        const radius = Math.random() * (30 - 8) + 8;
         let x, y;
 
         if (Math.random() < 0.5) {
@@ -96,16 +96,39 @@ function spawnEnemies() {
     }, 1000);
 }
 
+let animationId;
 function animate() {
-    requestAnimationFrame(animate);
+    animationId = requestAnimationFrame(animate);
     context.clearRect(0, 0, canvas.width, canvas.height);
     player.draw();
+
+    animateProjectile();
+    animateEnemies();    
+}
+
+function animateProjectile() {
     projectiles.forEach((projectile) => {
         projectile.update();
     })
+}
 
-    enemies.forEach(enemy => {
+function animateEnemies() {
+    enemies.forEach((enemy, index) => {
         enemy.update();
+        const dist = Math.hypot(player.x - enemy.x, player.y - enemy.y);
+        if (dist - enemy.radius - player.radius < 1){
+            cancelAnimationFrame(animationId);
+        }
+
+        projectiles.forEach((projectile, pIndex) => {
+            const dist = Math.hypot(projectile.x - enemy.x, projectile.y - enemy.y);
+            if (dist - enemy.radius - projectile.radius < 1) {
+                setTimeout(() => {
+                    enemies.splice(index, 1);
+                    projectiles.splice(pIndex, 1);
+                })                
+            }
+        })
     })
 }
 
