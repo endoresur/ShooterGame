@@ -69,7 +69,7 @@ class Enemy {
 const x = canvas.width / 2;
 const y = canvas.height / 2;
 
-const player = new Player(x, y, 30, 'blue');
+const player = new Player(x, y, 20, 'white');
 
 const projectiles = [];
 const enemies = [];
@@ -88,7 +88,7 @@ function spawnEnemies() {
             y = Math.random() * canvas.height;
         }
 
-        const color = 'green';
+        const color = `hsl(${Math.random() * 360}, 50%, 50%)`;
         const angle = Math.atan2(canvas.height / 2 - y, canvas.width / 2 - x);
         const velocity = {x: Math.cos(angle), y: Math.sin(angle)};
 
@@ -99,7 +99,8 @@ function spawnEnemies() {
 let animationId;
 function animate() {
     animationId = requestAnimationFrame(animate);
-    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.fillStyle = 'rgba(0, 0, 0, 0.3)';
+    context.fillRect(0, 0, canvas.width, canvas.height);
     player.draw();
 
     animateProjectile();
@@ -107,8 +108,17 @@ function animate() {
 }
 
 function animateProjectile() {
-    projectiles.forEach((projectile) => {
+    projectiles.forEach((projectile, index) => {
         projectile.update();
+
+        if (projectile.x + projectile.radius < 0 ||
+            projectile.x - projectile.radius > canvas.width ||
+            projectile.y + projectile.radius < 0 ||
+            projectile.y - projectile.radius > canvas.height) {
+            setTimeout(() => {
+                projectiles.slice(index, 1);
+            }, 0);
+        }
     })
 }
 
@@ -134,8 +144,8 @@ function animateEnemies() {
 
 addEventListener('click', (event) => {
     const angle = Math.atan2(event.clientY - canvas.height / 2, event.clientX - canvas.width / 2);
-    const velocity = {x: Math.cos(angle), y: Math.sin(angle)};
-    projectiles.push(new Projectile(canvas.width / 2, canvas.height / 2, 5, 'red', velocity));
+    const velocity = {x: Math.cos(angle) * 4, y: Math.sin(angle) * 4};
+    projectiles.push(new Projectile(canvas.width / 2, canvas.height / 2, 5, 'white', velocity));
 })
 
 animate();
